@@ -1,5 +1,5 @@
 # POS_backend 
-# りえさん＆りか
+## りえさん＆りか
 
 ## Install
 ### conda install "fastapi[standard]" 
