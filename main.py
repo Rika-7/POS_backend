@@ -5,7 +5,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"Hello": "POS app"}
+    return {"おはよう！": "元気？"}
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, item_name: Union[str, None] = None):
