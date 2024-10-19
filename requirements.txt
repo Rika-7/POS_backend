@@ -101,8 +101,7 @@ tbb==2021.8.0
 tk==8.6.14
 tornado==6.4.1
 traitlets==5.14.3
-typing-extensions
-typing_extensions
+typing-extensions==4.12.2
 tzdata==2024b
 unicodedata2
 urllib3==2.2.3
