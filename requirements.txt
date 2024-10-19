@@ -2,7 +2,7 @@
 # $ conda create --name <env> --file <this file>
 # platform: osx-64
 # created-by: conda 24.9.1
-annotated-types==0.6.0
+annotated-types=0.6.0
 anyio=4.2.0=py312hecd8cb5_0
 appnope=0.1.4=pyhd8ed1ab_0
 asttokens=2.4.1=pyhd8ed1ab_0
