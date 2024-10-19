@@ -59,7 +59,7 @@ starlette==0.38.2
 tornado==6.4.1
 traitlets==5.14.3
 typing-extensions==4.12.2
-tzdata==2024b
+tzdata==2024.1
 unicodedata2
 urllib3==2.2.3
 uvicorn==0.20.0
