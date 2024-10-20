@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -8,7 +8,7 @@ app = FastAPI()
 # これにより、フロントエンド（Next.js）からのリクエストを許可します
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # フロントエンドのURLを指定
+    allow_origins=["https://tech0-gen-7-step4-studentwebapp-pos-7-grfff0e3a4cmcvfg.eastus-01.azurewebsites.net"],  # フロントエンドのURLを指定
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,14 +20,13 @@ def read_root():
 
 # 商品の一覧を取得するエンドポイント
 @app.get("/items")
-async def get_items():
+async def get_items(code: str = Query(None)):
     # ここでデータベースから商品一覧を取得する処理を実装します
     # 仮のデータを返します
-    return [
-        {"id": 1, "name": "商品A", "price": 100},
-        {"id": 2, "name": "商品B", "price": 200},
-        {"id": 3, "name": "商品C", "price": 300},
-    ]
+    if code == "123":
+        return {"id": 1, "name": "おーいお茶", "price": 150}
+    else:
+        return {"message": "商品がマスタ未登録です"}
 
 # 注文を作成するエンドポイント
 @app.post("/orders")
