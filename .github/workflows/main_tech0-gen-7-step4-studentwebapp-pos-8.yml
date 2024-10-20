@@ -70,3 +70,5 @@ jobs:
           app-name: 'tech0-gen-7-step4-studentwebapp-pos-8'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_02273BAEDE414A70979335F299948BC6 }}
+          package: .
+          timeout: 1200
