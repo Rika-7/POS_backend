@@ -1,7 +1,14 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from database import SessionLocal, engine, Base
+import models
 
+# テーブル作成
+Base.metadata.create_all(bind=engine)
 
+# FastAPI instance
 app = FastAPI()
 
 # CORSミドルウェアを追加
@@ -13,6 +20,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# データベースへの接続を取得する関数
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 @app.get("/")
 def read_root():
@@ -34,3 +49,12 @@ async def create_order(order: dict):
     # ここで注文をデータベースに保存する処理を実装します
     # 仮の応答を返します
     return {"message": "注文が作成されました", "order_id": 1}
+
+# 商品を作成するエンドポイント
+@app.post("/create_product/")
+def create_product(name: str, price: int, db: Session = Depends(get_db)):
+    new_product = models.Product(name=name, price=price)
+    db.add(new_product)
+    db.commit()
+    db.refresh(new_product)
+    return new_product
