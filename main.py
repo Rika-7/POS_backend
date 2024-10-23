@@ -33,16 +33,7 @@ def get_db():
 def read_root():
     return {"おはよう！": "元気？"}
 
-# # 商品の一覧を取得するエンドポイント
-# @app.get("/items")
-# async def get_items(code: str = Query(None)):
-#     # ここでデータベースから商品一覧を取得する処理を実装します
-#     # 仮のデータを返します
-#     if code == "123":
-#         return {"id": 1, "name": "おーいお茶", "price": 150}
-#     else:
-#         return {"message": "商品がマスタ未登録です"}
-    
+# 商品の一覧を取得するエンドポイント
 @app.get("/product/")
 def get_product_by_code(code: str, db: Session = Depends(get_db)):
     existing_product = db.query(models.Product).filter(models.Product.code == code).first()
