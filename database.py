@@ -1,17 +1,19 @@
+import os #OSモジュールをインポート(環境変数の操作に使用)
 import mysql.connector
 from mysql.connector import errorcode
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv # .envファイルから環境変数を読み込む
 
 # Obtain connection string information from the portal
 config = {
-  'host':'tech0-db-step4-studentrdb-4.mysql.database.azure.com',
-  'user':'tech0gen7student',
-  'password':'F4XyhpicGw6P',
-  'database':'pos_rr',
+  'host':os.getenv("DB_HOST"),
+  'user':os.getenv("DB_USER"),
+  'password':os.getenv("DB_PASSWORD"),
+  'database':os.getenv("DB_NAME"),
   'client_flags': [mysql.connector.ClientFlag.SSL],
-  'ssl_ca': '/Users/Rika 1/certificates/DigiCertGlobalRootG2.crt.pem'
+  'ssl_ca': '/home/site/certificates/DigiCertGlobalRootG2.crt.pem'
 }
 
 # SQLAlchemy connection string
