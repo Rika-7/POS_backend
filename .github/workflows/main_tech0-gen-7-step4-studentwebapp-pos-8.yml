@@ -13,9 +13,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    concurrency:
-      group: tech0-gen-7-step4-deployment
-      cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v4
@@ -69,6 +66,4 @@ jobs:
         with:
           app-name: 'tech0-gen-7-step4-studentwebapp-pos-8'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_02273BAEDE414A70979335F299948BC6 }}
-          package: .
-          timeout: 1200
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_77DAE55636594FA4962687DF962BA9D0 }}
