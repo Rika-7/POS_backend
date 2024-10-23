@@ -15,7 +15,7 @@ app = FastAPI()
 # これにより、フロントエンド（Next.js）からのリクエストを許可します
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://tech0-gen-7-step4-studentwebapp-pos-7-grfff0e3a4cmcvfg.eastus-01.azurewebsites.net"],  # フロントエンドのURLを指定
+    allow_origins=["*"],  # フロントエンドのURLを指定
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -61,8 +61,6 @@ def create_product(name: str, price: int, code: str, db: Session = Depends(get_d
     db.commit()
     db.refresh(new_product)
     return new_product
-
-
 
 # 注文を作成するエンドポイント
 @app.post("/orders")
