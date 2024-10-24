@@ -1,6 +1,8 @@
 # models.py
 from sqlalchemy import Column, Integer, String, UniqueConstraint
 from database import Base
+from typing import List
+from pydantic import BaseModel
 
 class Product(Base):
     __tablename__ = "products"
@@ -43,3 +45,18 @@ class Tax(Base):
     code = Column(String(2), unique=True)
     name = Column(String(20))
     percent = Column(Integer) 
+
+# Pydantic Models
+class OrderItem(BaseModel):
+    product_id: int
+    product_code: str
+    product_name: str
+    product_price: int
+    quantity: int
+
+class OrderCreate(BaseModel):
+    emp_cd: str
+    items: List[OrderItem]
+
+    class Config:
+        orm_mode = True
