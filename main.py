@@ -5,7 +5,8 @@ from database import SessionLocal, engine, Base
 import models
 from datetime import datetime
 from typing import List, Dict
-from pydantic import BaseModel
+from models import OrderCreate, OrderItem
+
 
 # テーブル作成
 Base.metadata.create_all(bind=engine)
