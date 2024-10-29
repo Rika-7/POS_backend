@@ -75,7 +75,7 @@ async def startup_event():
         db.close()
 
 # 商品の一覧を取得するエンドポイント
-@app.get("/product/")
+@app.get("/product/{code}")
 def get_product_by_code(code: str, db: Session = Depends(get_db)):
     existing_product = db.query(models.Product).filter(models.Product.code == code).first()
     if existing_product:
