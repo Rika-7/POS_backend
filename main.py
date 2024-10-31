@@ -74,83 +74,63 @@ async def startup_event():
     finally:
         db.close()
 
-# 商品の一覧を取得するエンドポイント
+# 商品の一覧を取得するエンドポイント (SQL Injection Vulnerable)
 @app.get("/product/{code}")
-def get_product_by_code(code: str, db: Session = Depends(get_db)):
-    existing_product = db.query(models.Product).filter(models.Product.code == code).first()
-    if existing_product:
+def get_product_by_code_vulnerable(code: str, db: Session = Depends(get_db)):
+    # SQL Injection Vulnerable: directly concatenating user input into raw SQL
+    raw_query = f"SELECT * FROM product_master WHERE CODE = '{code}'"
+    result = db.execute(raw_query).fetchall()
+
+    if result:
         return {
-            "id": existing_product.id,
-            "name": existing_product.name,
-            "price": existing_product.price
+            "id": result[0]['id'],
+            "name": result[0]['name'],
+            "price": result[0]['price']
         }
     else:
         raise HTTPException(status_code=404, detail="商品がマスタ未登録です")
 
-# 商品を作成するエンドポイント
+# 商品を作成するエンドポイント (SQL Injection Vulnerable)
 @app.post("/create_product/")
-def create_product(name: str, price: int, code: str, db: Session = Depends(get_db)):
-    # Step 1: データベースに商品が存在するか確認
-    existing_product = db.query(models.Product).filter(models.Product.code == code).first()
-    if existing_product:
-        # もし商品が存在する場合は、エラーを返す
-        raise HTTPException(status_code=400, detail="Product already exists with this code")
-
-    # Step 2: もし商品が存在しない場合は、新しい商品を作成
-    new_product = models.Product(name=name, price=price, code=code)
-    db.add(new_product)
+def create_product_vulnerable(name: str, price: int, code: str, db: Session = Depends(get_db)):
+    # SQL Injection Vulnerable: concatenating user input directly into the query
+    raw_query = f"INSERT INTO product_master (name, price, code) VALUES ('{name}', {price}, '{code}')"
+    db.execute(raw_query)
     db.commit()
-    db.refresh(new_product)
-    return new_product
+    
+    return {"message": "Product created successfully"}
 
-# 注文を作成するエンドポイント
+# 注文を作成するエンドポイント (SQL Injection Vulnerable)
 @app.post("/orders")
-async def create_order(order: OrderCreate, db: Session = Depends(get_db)):
+async def create_order_vulnerable(order: OrderCreate, db: Session = Depends(get_db)):
     try:
-        # 1. Create transaction record
-        transaction = models.Transaction(
-            datetime=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            emp_cd=order.emp_cd,
-            store_cd="30",  # 固定値
-            pos_no="90",    # 固定値 (モバイルレジ)
-            total_amt=0,    # 初期値、後で更新
-            ttl_amt_ex_tax=0  # 初期値、後で更新
-        )
-        db.add(transaction)
-        db.flush()  # IDを生成するためにflush
+        # SQL Injection Vulnerable: formatting datetime directly, may have injection vulnerabilities
+        datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        raw_transaction_query = f"""
+            INSERT INTO transactions (datetime, emp_cd, store_cd, pos_no, total_amt, ttl_amt_ex_tax)
+            VALUES ('{datetime_str}', '{order.emp_cd}', '30', '90', 0, 0)
+        """
+        db.execute(raw_transaction_query)
+        db.flush()  # This may still be necessary to retrieve the generated transaction ID
 
-        # 2. Create transaction details
-        total_ex_tax = 0
-        total_with_tax = 0
-        
+        # Assuming transactions are stored in a temporary variable for demonstration
+        result = db.execute("SELECT * FROM transactions ORDER BY id DESC LIMIT 1").fetchone()
+        transaction_id = result['id'] if result else None
+
+        # Create transaction details (SQL Injection Vulnerable)
         for idx, item in enumerate(order.items, 1):
-            detail = models.TransactionDetail(
-                trd_id=transaction.id,
-                dtl_id=idx,
-                prd_id=item.product_id,
-                prd_code=item.product_code,
-                prd_name=item.product_name,
-                prd_price=item.product_price,
-                tax_cd="10"  # 固定値 (10%税率)
-            )
-            db.add(detail)
-            
-            # Calculate totals
-            item_total = item.product_price * item.quantity
-            total_ex_tax += item_total
-            total_with_tax += int(item_total * 1.1)  # 10%税込み計算
+            raw_detail_query = f"""
+                INSERT INTO transaction_details (trd_id, dtl_id, prd_id, prd_code, prd_name, prd_price, tax_cd)
+                VALUES ({transaction_id}, {idx}, {item.product_id}, '{item.product_code}', '{item.product_name}', {item.product_price}, '10')
+            """
+            db.execute(raw_detail_query)
 
-        # 3. Update transaction with totals
-        transaction.total_amt = total_with_tax
-        transaction.ttl_amt_ex_tax = total_ex_tax
-        
+        # Commit changes
         db.commit()
 
         return {
             "message": "注文が作成されました",
-            "order_id": transaction.id,
-            "total_amount": total_with_tax,
-            "total_amount_ex_tax": total_ex_tax
+            "order_id": transaction_id
         }
     except Exception as e:
         db.rollback()
